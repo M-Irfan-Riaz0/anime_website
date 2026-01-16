@@ -20,6 +20,67 @@ get_header();
 ?>
 
 <div class="container">
+     <!-- ==================== POPULAR SERIES SECTION ==================== -->
+    <section class="popular-series-section mt-2" aria-labelledby="popular-series-title">
+        
+        <header class="section-header">
+            <h2 id="popular-series-title" class="section-title">
+                <?php esc_html_e('Popular Series', 'anime-starter'); ?>
+            </h2>
+            <a href="<?php echo esc_url(get_post_type_archive_link('series')); ?>" class="view-all-link">
+                <?php esc_html_e('View All', 'anime-starter'); ?> →
+            </a>
+        </header>
+        
+        <?php
+        // Get popular series
+        $popular_series = anime_get_popular_series(10);
+        
+        if (!empty($popular_series)) :
+        ?>
+            <div class="grid grid-5">
+                <?php foreach ($popular_series as $s) : 
+                    $genres = get_the_terms($s->ID, 'genre');
+                    $status = get_the_terms($s->ID, 'status');
+                    $episode_count = anime_get_episode_count($s->ID);
+                ?>
+                    <article class="card series-card">
+                        <a href="<?php echo get_permalink($s->ID); ?>" class="card-link">
+                            <div class="card-image">
+                                <?php if (has_post_thumbnail($s->ID)) : ?>
+                                    <?php echo get_the_post_thumbnail(
+                                        $s->ID, 
+                                        'poster-small',
+                                        array('loading' => 'lazy', 'alt' => esc_attr($s->post_title))
+                                    ); ?>
+                                <?php else : ?>
+                                    <div class="lazy-placeholder"></div>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($status) && !is_wp_error($status)) : ?>
+                                    <span class="card-badge">
+                                        <?php echo esc_html($status[0]->name); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <div class="card-content">
+                                <h3 class="card-title"><?php echo esc_html($s->post_title); ?></h3>
+                                <div class="card-meta">
+                                    <?php if ($episode_count > 0) : ?>
+                                        <span><?php echo esc_html($episode_count); ?> EP</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        <?php else : ?>
+            <p class="no-content"><?php esc_html_e('No series found. Start adding some!', 'anime-starter'); ?></p>
+        <?php endif; ?>
+        
+    </section>
     
     <!-- ==================== LATEST EPISODES SECTION ==================== -->
     <section class="latest-episodes-section" aria-labelledby="latest-episodes-title">
@@ -83,68 +144,7 @@ get_header();
         
     </section>
     
-    <!-- ==================== POPULAR SERIES SECTION ==================== -->
-    <section class="popular-series-section mt-2" aria-labelledby="popular-series-title">
-        
-        <header class="section-header">
-            <h2 id="popular-series-title" class="section-title">
-                <?php esc_html_e('Popular Series', 'anime-starter'); ?>
-            </h2>
-            <a href="<?php echo esc_url(get_post_type_archive_link('series')); ?>" class="view-all-link">
-                <?php esc_html_e('View All', 'anime-starter'); ?> →
-            </a>
-        </header>
-        
-        <?php
-        // Get popular series
-        $popular_series = anime_get_popular_series(10);
-        
-        if (!empty($popular_series)) :
-        ?>
-            <div class="grid grid-5">
-                <?php foreach ($popular_series as $s) : 
-                    $genres = get_the_terms($s->ID, 'genre');
-                    $status = get_the_terms($s->ID, 'status');
-                    $episode_count = anime_get_episode_count($s->ID);
-                ?>
-                    <article class="card series-card">
-                        <a href="<?php echo get_permalink($s->ID); ?>" class="card-link">
-                            <div class="card-image">
-                                <?php if (has_post_thumbnail($s->ID)) : ?>
-                                    <?php echo get_the_post_thumbnail(
-                                        $s->ID, 
-                                        'poster-small',
-                                        array('loading' => 'lazy', 'alt' => esc_attr($s->post_title))
-                                    ); ?>
-                                <?php else : ?>
-                                    <div class="lazy-placeholder"></div>
-                                <?php endif; ?>
-                                
-                                <?php if (!empty($status) && !is_wp_error($status)) : ?>
-                                    <span class="card-badge">
-                                        <?php echo esc_html($status[0]->name); ?>
-                                    </span>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <div class="card-content">
-                                <h3 class="card-title"><?php echo esc_html($s->post_title); ?></h3>
-                                <div class="card-meta">
-                                    <?php if ($episode_count > 0) : ?>
-                                        <span><?php echo esc_html($episode_count); ?> EP</span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </a>
-                    </article>
-                <?php endforeach; ?>
-            </div>
-        <?php else : ?>
-            <p class="no-content"><?php esc_html_e('No series found. Start adding some!', 'anime-starter'); ?></p>
-        <?php endif; ?>
-        
-    </section>
-    
+   
     <!-- ==================== GENRES SECTION ==================== -->
     <section class="genres-section mt-2" aria-labelledby="browse-genres-title">
         

@@ -48,7 +48,7 @@ Tags: custom-background, custom-logo, custom-menu, featured-images, threaded-com
     --spacing-2xl: 3rem;
     
     /* Layout */
-    --container-max: 1200px;
+    --container-max: 100%;
     --sidebar-width: 300px;
     --border-radius: 8px;
     
@@ -127,7 +127,7 @@ strong, b {
     width: 100%;
     max-width: var(--container-max);
     margin: 0 auto;
-    padding: 0 var(--spacing-md);
+    padding: 0 var(--spacing-2xl);
 }
 
 .site-content {
