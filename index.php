@@ -94,53 +94,63 @@ get_header();
             </a>
         </header>
         
-        <?php
-        // Get latest 12 episodes
-        $latest_episodes = anime_get_latest_episodes(12);
-        
-        if (!empty($latest_episodes)) :
-        ?>
-            <div class="grid grid-4">
-                <?php foreach ($latest_episodes as $episode) : 
-                    $series = anime_get_episode_series($episode->ID);
-                    $episode_num = get_post_meta($episode->ID, '_episode_number', true);
-                    $sub_type = get_post_meta($episode->ID, '_subtitle_type', true);
-                ?>
-                    <article class="card episode-card">
-                        <a href="<?php echo get_permalink($episode->ID); ?>" class="card-link">
-                            <div class="card-image">
-                                <?php if (has_post_thumbnail($series ? $series->ID : $episode->ID)) : ?>
-                                    <?php echo get_the_post_thumbnail(
-                                        $series ? $series->ID : $episode->ID, 
-                                        'episode-thumb',
-                                        array('loading' => 'lazy', 'alt' => esc_attr($episode->post_title))
-                                    ); ?>
-                                <?php else : ?>
-                                    <div class="lazy-placeholder"></div>
-                                <?php endif; ?>
-                                
-                                <span class="card-badge">
-                                    <?php echo $sub_type === 'dub' ? 'DUB' : 'SUB'; ?>
-                                </span>
-                                
-                                <span class="episode-number">EP <?php echo esc_html($episode_num); ?></span>
-                            </div>
+    <?php
+    // Get latest 12 episodes
+    $latest_episodes = anime_get_latest_episodes(12);
+    
+    if (!empty($latest_episodes)) :
+    ?>
+        <div class="grid grid-4">
+            <?php foreach ($latest_episodes as $episode) : 
+                $series = anime_get_episode_series($episode->ID);
+                $episode_num = get_post_meta($episode->ID, '_episode_number', true);
+                $sub_type = get_post_meta($episode->ID, '_subtitle_type', true);
+                
+                // Determine which thumbnail to use (Episode first, then Series fallback)
+                $thumbnail_id = 0;
+                if (has_post_thumbnail($episode->ID)) {
+                    // Episode has its own thumbnail
+                    $thumbnail_id = $episode->ID;
+                } elseif ($series && has_post_thumbnail($series->ID)) {
+                    // Fallback to series thumbnail
+                    $thumbnail_id = $series->ID;
+                }
+            ?>
+                <article class="card episode-card">
+                    <a href="<?php echo get_permalink($episode->ID); ?>" class="card-link">
+                        <div class="card-image">
+                            <?php if ($thumbnail_id) : ?>
+                                <?php echo get_the_post_thumbnail(
+                                    $thumbnail_id, 
+                                    'episode-thumb',
+                                    array('loading' => 'lazy', 'alt' => esc_attr($episode->post_title))
+                                ); ?>
+                            <?php else : ?>
+                                <div class="lazy-placeholder"></div>
+                            <?php endif; ?>
                             
-                            <div class="card-content">
-                                <h2 class="card-title">
-                                    <?php echo esc_html($series ? $series->post_title : $episode->post_title); ?>
-                                </h2>
-                                <div class="card-meta">
-                                    <span>Episode <?php echo esc_html($episode_num); ?></span>
-                                </div>
+                            <span class="card-badge">
+                                <?php echo $sub_type === 'dub' ? 'DUB' : 'SUB'; ?>
+                            </span>
+                            
+                            <span class="episode-number">EP <?php echo esc_html($episode_num); ?></span>
+                        </div>
+                        
+                        <div class="card-content">
+                            <h2 class="card-title">
+                                <?php echo esc_html($series ? $series->post_title : $episode->post_title); ?>
+                            </h2>
+                            <div class="card-meta">
+                                <span>Episode <?php echo esc_html($episode_num); ?></span>
                             </div>
-                        </a>
-                    </article>
-                <?php endforeach; ?>
-            </div>
-        <?php else : ?>
-            <p class="no-content"><?php esc_html_e('No episodes found. Start adding some!', 'anime-starter'); ?></p>
-        <?php endif; ?>
+                        </div>
+                    </a>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php else : ?>
+        <p class="no-content"><?php esc_html_e('No episodes found. Start adding some!', 'anime-starter'); ?></p>
+    <?php endif; ?>
         
     </section>
     
