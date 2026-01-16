@@ -1,0 +1,810 @@
+/*
+Theme Name: Anime Starter Theme
+Theme URI: https://yoursite.com
+Author: Irfan
+Author URI: https://yoursite.com
+Description: A minimal, SEO-first WordPress theme for anime streaming sites. Built with vanilla JS, no jQuery, no heavy plugins. Custom Post Types for Series and Episodes with manual streaming link management.
+Version: 1.0.0
+Requires at least: 6.0
+Tested up to: 6.4
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: anime-starter
+Tags: custom-background, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
+*/
+
+/* ==========================================================================
+   CSS VARIABLES - EASY CUSTOMIZATION
+   ========================================================================== */
+:root {
+    /* Colors - Neutral Authority Palette */
+    --color-primary: #1a1a2e;
+    --color-secondary: #16213e;
+    --color-accent: #e94560;
+    --color-text: #eaeaea;
+    --color-text-muted: #a0a0a0;
+    --color-bg: #0f0f23;
+    --color-bg-card: #1a1a2e;
+    --color-border: #2a2a4a;
+    --color-success: #4caf50;
+    --color-warning: #ff9800;
+    
+    /* Typography */
+  --font-primary: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    --font-size-base: 16px;
+    --font-size-sm: 0.875rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.5rem;
+    --font-size-2xl: 2rem;
+    --line-height: 1.6;
+    
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* Layout */
+    --container-max: 1200px;
+    --sidebar-width: 300px;
+    --border-radius: 8px;
+    
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 300ms ease;
+}
+
+/* ==========================================================================
+   RESET & BASE
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: var(--font-size-base);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    min-height: 100vh;
+}
+
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-text);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+body, p {
+  font-weight: 400;
+}
+
+strong, b {
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+.container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.site-content {
+    min-height: calc(100vh - 200px);
+    padding: var(--spacing-xl) 0;
+}
+
+/* Grid System */
+.grid {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-5 { grid-template-columns: repeat(5, 1fr); }
+
+@media (max-width: 1024px) {
+    .grid-5 { grid-template-columns: repeat(4, 1fr); }
+    .grid-4 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .grid-5, .grid-4, .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .grid-5, .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.site-header {
+    background: var(--color-primary);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) 0;
+    gap: var(--spacing-lg);
+}
+
+.site-logo {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.site-logo:hover {
+    color: var(--color-accent);
+}
+
+/* Navigation */
+.main-nav ul {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.main-nav a {
+    color: var(--color-text);
+    font-weight: 500;
+    padding: var(--spacing-sm) 0;
+    position: relative;
+}
+
+.main-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-accent);
+    transition: width var(--transition-normal);
+}
+
+.main-nav a:hover::after,
+.main-nav .current-menu-item a::after {
+    width: 100%;
+}
+
+/* Mobile Menu Toggle */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: var(--spacing-sm);
+}
+
+.menu-toggle span {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: var(--color-text);
+    transition: var(--transition-fast);
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+    
+    .main-nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--color-primary);
+        border-bottom: 1px solid var(--color-border);
+        display: none;
+    }
+    
+    .main-nav.active {
+        display: block;
+    }
+    
+    .main-nav ul {
+        flex-direction: column;
+        padding: var(--spacing-md);
+        gap: 0;
+    }
+    
+    .main-nav a {
+        display: block;
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--color-border);
+    }
+}
+
+/* Search */
+.header-search {
+    position: relative;
+}
+
+.search-toggle {
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+    padding: var(--spacing-sm);
+}
+
+.search-form {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--color-bg-card);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    display: none;
+    min-width: 300px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.search-form.active {
+    display: block;
+}
+
+.search-form input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+.site-footer {
+    background: var(--color-primary);
+    border-top: 1px solid var(--color-border);
+    padding: var(--spacing-xl) 0;
+    margin-top: auto;
+}
+
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.footer-nav ul {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.footer-nav a {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.copyright {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+/* ==========================================================================
+   CARDS - SERIES & EPISODES
+   ========================================================================== */
+.card {
+    background: var(--color-bg-card);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.card-image {
+    position: relative;
+    aspect-ratio: 2/3;
+    overflow: hidden;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+}
+
+.card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+.card-badge {
+    position: absolute;
+    top: var(--spacing-sm);
+    left: var(--spacing-sm);
+    background: var(--color-accent);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 4px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.card-content {
+    padding: var(--spacing-md);
+}
+
+.card-title {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-meta {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+/* Episode Card Variation */
+.episode-card .card-image {
+    aspect-ratio: 16/9;
+}
+
+.episode-number {
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: var(--font-size-sm);
+}
+
+/* ==========================================================================
+   SINGLE SERIES PAGE
+   ========================================================================== */
+.series-hero {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
+}
+
+@media (max-width: 768px) {
+    .series-hero {
+        grid-template-columns: 1fr;
+    }
+}
+
+.series-poster {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.series-info h1 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.series-meta {
+    display: flex;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-text-muted);
+}
+
+.series-meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.series-genres {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-lg);
+}
+
+.genre-tag {
+    background: var(--color-secondary);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 20px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+.series-description {
+    line-height: 1.8;
+    color: var(--color-text-muted);
+}
+
+/* Episodes List */
+.episodes-section {
+    background: var(--color-bg-card);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+}
+
+.section-title {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.episodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.episode-btn {
+    background: var(--color-secondary);
+    color: var(--color-text);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: 500;
+    transition: background var(--transition-fast);
+}
+
+.episode-btn:hover {
+    background: var(--color-accent);
+    color: white;
+}
+
+/* ==========================================================================
+   SINGLE EPISODE PAGE - PLAYER
+   ========================================================================== */
+.player-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.player-container {
+    background: #000;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    position: relative;
+}
+
+.player-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+}
+
+.player-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.player-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-secondary);
+    color: var(--color-text-muted);
+}
+
+/* Source Switcher */
+.source-switcher {
+    background: var(--color-bg-card);
+    padding: var(--spacing-md);
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+.source-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-sm);
+}
+
+.source-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.source-btn {
+    background: var(--color-secondary);
+    color: var(--color-text);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    transition: background var(--transition-fast);
+}
+
+.source-btn:hover,
+.source-btn.active {
+    background: var(--color-accent);
+    color: white;
+}
+
+/* Episode Navigation */
+.episode-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--color-bg-card);
+    border-radius: var(--border-radius);
+    margin-top: var(--spacing-lg);
+}
+
+.episode-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--color-text);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--color-secondary);
+    border-radius: var(--border-radius);
+    transition: background var(--transition-fast);
+}
+
+.episode-nav-btn:hover {
+    background: var(--color-accent);
+}
+
+.episode-nav-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   ARCHIVE PAGES
+   ========================================================================== */
+.archive-header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.archive-title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-sm);
+}
+
+.archive-description {
+    color: var(--color-text-muted);
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-md);
+    background: var(--color-bg-card);
+    border-radius: var(--border-radius);
+}
+
+.filter-select {
+    background: var(--color-secondary);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    min-width: 150px;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-2xl);
+}
+
+.pagination a,
+.pagination span {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-card);
+    border-radius: var(--border-radius);
+    color: var(--color-text);
+}
+
+.pagination .current {
+    background: var(--color-accent);
+    color: white;
+}
+
+/* ==========================================================================
+   SEARCH PAGE
+   ========================================================================== */
+.search-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.search-results-title {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-lg);
+}
+
+.search-form-large {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.search-form-large input {
+    flex: 1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background: var(--color-bg-card);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+}
+
+.search-form-large button {
+    background: var(--color-accent);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   404 PAGE
+   ========================================================================== */
+.error-page {
+    text-align: center;
+    padding: var(--spacing-2xl) 0;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    line-height: 1;
+}
+
+.error-title {
+    font-size: var(--font-size-2xl);
+    margin: var(--spacing-lg) 0;
+}
+
+.error-description {
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-xl);
+}
+
+.error-btn {
+    display: inline-block;
+    background: var(--color-accent);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   BREADCRUMBS
+   ========================================================================== */
+.breadcrumbs {
+    display: flex;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.breadcrumbs a {
+    color: var(--color-text-muted);
+}
+
+.breadcrumbs a:hover {
+    color: var(--color-accent);
+}
+
+.breadcrumbs span {
+    color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.text-center { text-align: center; }
+.text-muted { color: var(--color-text-muted); }
+.mt-1 { margin-top: var(--spacing-md); }
+.mt-2 { margin-top: var(--spacing-lg); }
+.mb-1 { margin-bottom: var(--spacing-md); }
+.mb-2 { margin-bottom: var(--spacing-lg); }
+
+/* Lazy Load Placeholder */
+.lazy-placeholder {
+    background: var(--color-secondary);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
