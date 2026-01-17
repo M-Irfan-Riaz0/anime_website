@@ -857,3 +857,28 @@ function mytheme_enqueue_styles() {
     wp_enqueue_style( 'mytheme-style', get_stylesheet_uri() );
 }
 add_action( 'wp_enqueue_scripts', 'mytheme_enqueue_styles' );
+// Autocomplete for Series CPT
+add_action('wp_ajax_series_autocomplete', 'series_autocomplete');
+add_action('wp_ajax_nopriv_series_autocomplete', 'series_autocomplete');
+
+function series_autocomplete() {
+    $query = sanitize_text_field($_GET['query']); // user input
+
+    $args = array(
+        'post_type'      => 'series',
+        'posts_per_page' => 10,
+        'post_status'    => 'publish',
+        's'              => $query,   // search titles containing query
+        'fields'         => 'ids',    // only get IDs for efficiency
+    );
+
+    $posts = get_posts($args);
+    $results = array();
+
+    foreach($posts as $post_id){
+        $results[] = get_the_title($post_id);
+    }
+
+    echo wp_json_encode($results);
+    wp_die();
+}

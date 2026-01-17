@@ -104,7 +104,73 @@
             }
         });
     }
-    
+
+
+   // ==========================================================================
+    // UTILITY: Debounce Function (for future use with search, etc.)
+    // ==========================================================================
+
+ window.debounce = function(func, wait) {
+        var timeout;
+        return function() {
+            var context = this;
+            var args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                func.apply(context, args);
+            }, wait);
+        };
+    };
+    // ==========================================================================
+// AUTOCOMPLETE FOR SERIES SEARCH
+// ==========================================================================
+(function() {
+    const searchInput = document.getElementById('header-search-input');
+    const searchForm = document.getElementById('header-search-form');
+
+    if (!searchInput || !searchForm) return;
+
+    // Create dropdown container
+    const dropdown = document.createElement('ul');
+    dropdown.className = 'autocomplete-dropdown';
+    searchForm.appendChild(dropdown);
+
+    searchInput.addEventListener('input', debounce(function() {
+        const query = this.value.trim();
+        if (query.length < 1) {
+            dropdown.innerHTML = '';
+            return;
+        }
+
+        fetch(`/wp-admin/admin-ajax.php?action=series_autocomplete&query=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(data => {
+                dropdown.innerHTML = '';
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+
+                    // click fills input and optionally submits
+                    li.addEventListener('click', () => {
+                        searchInput.value = item;
+                        dropdown.innerHTML = '';
+                        searchForm.submit(); // remove if you want only filling
+                    });
+
+                    dropdown.appendChild(li);
+                });
+            });
+    }, 300));
+
+    // Close dropdown on outside click
+    document.addEventListener('click', (e) => {
+        if (!searchForm.contains(e.target)) {
+            dropdown.innerHTML = '';
+        }
+    });
+
+})();
+
     // ==========================================================================
     // VIDEO SOURCE SWITCHER
     // ==========================================================================
@@ -203,19 +269,7 @@
         }
     };
     
-    // ==========================================================================
-    // UTILITY: Debounce Function (for future use with search, etc.)
-    // ==========================================================================
-    window.debounce = function(func, wait) {
-        var timeout;
-        return function() {
-            var context = this;
-            var args = arguments;
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-                func.apply(context, args);
-            }, wait);
-        };
-    };
+ 
+   
     
 })();
